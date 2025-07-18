@@ -111,7 +111,7 @@ export default function IndexPage() {
                     className="w-full px-4 py-3 rounded-md border-black border-2 focus:border-[#1877f2] focus:ring-1 focus:ring-[#1877f2] outline-none text-[17px] text-black"
                   />
                   <input
-                    type="text"
+                    type="password"
                     placeholder="Enter New Password"
                     value={newpassword}
                     onChange={(e) => setNewPassword(e.target.value)}
