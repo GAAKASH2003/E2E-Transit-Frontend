@@ -8,24 +8,21 @@ export const revalidate = 0;
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
+  const next = url.searchParams.get("next") ?? "/profile";
 
   if (!code) {
-    console.error("OAuth callback missing `code`.");
     return NextResponse.redirect(
-      new URL("/error?message=No+code+provided", url)
+      new URL("/error?message=Missing code", req.url)
     );
   }
 
-  // Use explicit site URL so prod works reliably
   const baseUrl =
     process.env.NODE_ENV === "development"
       ? process.env.NEXT_PUBLIC_SITE_LOCAL!
       : process.env.NEXT_PUBLIC_SITE_URL!;
 
-  const redirectUrl = new URL("/profile", baseUrl);
-  const response = NextResponse.redirect(redirectUrl);
+  const response = NextResponse.redirect(new URL(next, baseUrl));
 
-  // Supabase SSR client wired to request & response for cookie persistence
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_ANON_KEY!,
@@ -46,7 +43,6 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  // Exchange the OAuth code for a Supabase session
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error("exchangeCodeForSession error:", error);
@@ -55,14 +51,12 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Optional: sync user to your own backend
   const user = data?.user;
   if (user) {
     try {
-      await syncSupabaseUser(user); // ensure this uses a backend API call if needed
+      await syncSupabaseUser(user);
     } catch (err) {
       console.error("syncSupabaseUser error (non-fatal):", err);
-      // Don't block redirect
     }
   }
 
