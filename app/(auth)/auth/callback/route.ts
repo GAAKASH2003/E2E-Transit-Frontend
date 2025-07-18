@@ -4,7 +4,11 @@ import { createServerClient } from "@supabase/ssr";
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
+  // Create redirect URL to /profile and append code as a query parameter
   const redirectUrl = new URL("/profile", req.url);
+  if (code) {
+    redirectUrl.searchParams.set("code", code);
+  }
 
   // Prepare a response object for setting cookies
   const response = NextResponse.redirect(redirectUrl);
