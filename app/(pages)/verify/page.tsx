@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 
 export default function IndexPage() {
   const [otp, setOtp] = useState("");
-  const [isSigned, setAssigned] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
