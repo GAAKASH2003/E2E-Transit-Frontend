@@ -1,26 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { syncSupabaseUser } from "@/lib/syncUser";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  // Create redirect URL to /profile and append code as a query parameter
-  const redirectUrl = new URL("/profile", req.url);
-  if (code) {
-    redirectUrl.searchParams.set("code", code);
-  }
-
-  // Prepare a response object for setting cookies
-  const response = NextResponse.redirect(redirectUrl);
 
   if (!code) {
-    console.error("No code provided in the request");
+    console.error("OAuth callback missing `code`.");
     return NextResponse.redirect(
-      new URL("/error?message=No+code+provided", req.url)
+      new URL("/error?message=No+code+provided", url)
     );
   }
 
-  // Create Supabase SSR client
+  // Use explicit site URL so prod works reliably
+  const baseUrl =
+    process.env.NODE_ENV === "development"
+      ? process.env.NEXT_PUBLIC_SITE_LOCAL!
+      : process.env.NEXT_PUBLIC_SITE_URL!;
+
+  const redirectUrl = new URL("/profile", baseUrl);
+  const response = NextResponse.redirect(redirectUrl);
+
+  // Supabase SSR client wired to request & response for cookie persistence
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_ANON_KEY!,
@@ -41,17 +46,25 @@ export async function GET(req: NextRequest) {
     }
   );
 
-  // Exchange code for a session
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-
+  // Exchange the OAuth code for a Supabase session
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error("exchangeCodeForSession error:", error);
     return NextResponse.redirect(
-      new URL("/error?message=Auth+failed", req.url)
+      new URL("/error?message=Auth+failed", baseUrl)
     );
   }
 
-  // Optionally sync user in your backend (before redirect)
+  // Optional: sync user to your own backend
+  const user = data?.user;
+  if (user) {
+    try {
+      await syncSupabaseUser(user); // ensure this uses a backend API call if needed
+    } catch (err) {
+      console.error("syncSupabaseUser error (non-fatal):", err);
+      // Don't block redirect
+    }
+  }
 
   return response;
 }
