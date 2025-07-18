@@ -2,12 +2,10 @@ import { syncSupabaseUser } from "@/lib/syncUser";
 import { supabaseClientServer } from "@/utils/supabase/server";
 import Image from "next/image";
 
-// syncSupabaseUser
 export default async function ProfilePage() {
   const supabase = await supabaseClientServer();
   const {
     data: { user },
-    error,
   } = await supabase.auth.getUser();
 
   console.log("User data: ", user);

@@ -41,6 +41,9 @@ export async function syncSupabaseUser(supabaseUser: User) {
   }
   const data = await response.json();
   console.log("User synced successfully:", data);
+  if (supabaseUser) {
+    console.log("");
+  }
 
   return data;
 }

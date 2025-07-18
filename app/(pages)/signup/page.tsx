@@ -1,7 +1,6 @@
 "use client";
 import { useState, FormEvent } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/lib/auth-actions";
