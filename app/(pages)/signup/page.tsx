@@ -16,7 +16,7 @@ export default function AuthPage() {
   async function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email || !password) {
-      console.error("Email and password are required");
+      alert("Email and password are required");
       return;
     }
 
@@ -29,8 +29,8 @@ export default function AuthPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error signing up:", errorData);
-        throw new Error("Failed to sign up");
+        alert("Error signing up:" + errorData.message);
+        return;
       }
 
       localStorage.setItem("email", email);
@@ -44,7 +44,7 @@ export default function AuthPage() {
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email || !password) {
-      console.error("Email and password are required");
+      alert("Email and password are required");
       return;
     }
 
@@ -57,8 +57,8 @@ export default function AuthPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error logging in:", errorData);
-        throw new Error("Failed to log in");
+        alert("Error signing up:" + errorData.message);
+        return;
       }
 
       localStorage.setItem("email", email);
