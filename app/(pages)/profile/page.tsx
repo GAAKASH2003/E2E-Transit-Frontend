@@ -7,11 +7,7 @@ export default async function ProfilePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   console.log("User data: ", user);
-  if (user) {
-    await syncSupabaseUser(user);
-  }
   const email = user?.email || "Customer";
   return (
     <main className="min-h-screen w-full bg-[#e8ebee] flex items-center  p-4 bg-[url('/bg-image.jpg')] bg-cover bg-center">
