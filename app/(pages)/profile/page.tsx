@@ -1,4 +1,3 @@
-import { syncSupabaseUser } from "@/lib/syncUser";
 import { supabaseClientServer } from "@/utils/supabase/server";
 import Image from "next/image";
 
